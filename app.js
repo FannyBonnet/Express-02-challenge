@@ -4,15 +4,20 @@ const port = process.env.APP_PORT ?? 5000;
 
 const app = express();
 
+app.use(express.json());
+
 const welcome = (req, res) => {
     res.send("Welcome to my user list");
   };
   
-  app.get("/", welcome);
+app.get("/", welcome);
 
 const userHandlers = require("./userHandlers");
+
 app.get("/api/users", userHandlers.getUsers);
 app.get("/api/users/:id", userHandlers.getUserById);
+
+app.post("/api/users", userHandlers.postUser);
 
 app.listen(port, (err) => {
   if (err) {
