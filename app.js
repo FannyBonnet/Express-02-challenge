@@ -12,16 +12,18 @@ const welcome = (req, res) => {
   
 app.get("/", welcome);
 
+const { hashPassword } = require("./auth.js");
 const userHandlers = require("./userHandlers");
 
 app.get("/api/users", userHandlers.getUsers);
 app.get("/api/users/:id", userHandlers.getUserById);
 
-app.post("/api/users", userHandlers.postUser);
+app.post("/api/users", hashPassword, userHandlers.postUser);
 
-app.put("/api/users/:id", userHandlers.updateUser);
+app.put("/api/users/:id", hashPassword, userHandlers.updateUser);
 
 app.delete("/api/users/:id", userHandlers.deleteUser);
+
 
 app.listen(port, (err) => {
   if (err) {
