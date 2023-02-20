@@ -1,4 +1,6 @@
 const express = require("express");
+const userHandlers = require("./userHandlers");
+const { hashPassword, verifyPassword, verifyToken, verifyPayload } = require("./auth.js");
 require("dotenv").config();
 const port = process.env.APP_PORT ?? 5000;
 
@@ -10,19 +12,25 @@ const welcome = (req, res) => {
     res.send("Welcome to my user list");
   };
   
+  app.post(
+    "/api/login",
+    userHandlers.getUserByEmailWithPasswordAndPassToNext,
+    verifyPassword
+  );
+  
 app.get("/", welcome);
 
-const { hashPassword } = require("./auth.js");
-const userHandlers = require("./userHandlers");
-
 app.get("/api/users", userHandlers.getUsers);
+
 app.get("/api/users/:id", userHandlers.getUserById);
 
-app.post("/api/users", hashPassword, userHandlers.postUser);
+app.use(verifyToken);
 
-app.put("/api/users/:id", hashPassword, userHandlers.updateUser);
+app.post("/api/users", hashPassword, verifyToken, userHandlers.postUser);
 
-app.delete("/api/users/:id", userHandlers.deleteUser);
+app.put("/api/users/:id", verifyPayload, hashPassword, userHandlers.updateUser);
+
+app.delete("/api/users/:id", verifyPayload, userHandlers.deleteUser);
 
 
 app.listen(port, (err) => {
